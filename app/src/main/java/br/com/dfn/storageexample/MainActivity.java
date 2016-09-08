@@ -2,6 +2,7 @@ package br.com.dfn.storageexample;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -46,6 +48,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //1º First instantiate FirebaseStorage
+        storage = FirebaseStorage.getInstance();
+
+        //2º Create a storage reference from our app
+        storageReference = storage.getReferenceFromUrl(REFERECNCE);
+
         myImageView = (ImageView) findViewById(R.id.myImageView);
 
         ((Button) findViewById(R.id.btnTakePicture)).setOnClickListener(new View.OnClickListener() {
@@ -55,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ((Button) findViewById(R.id.btnLoadPicture)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                downloadImage();
+            }
+        });
     }
 
 
@@ -112,12 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void uploadImage() {
 
-        //1º First instantiate FirebaseStorage
-        storage = FirebaseStorage.getInstance();
-
-        //2º Create a storage reference from our app
-        storageReference = storage.getReferenceFromUrl(REFERECNCE);
-
         //3º Create a reference to "meetup.jpg"
         StorageReference meetupRef = storageReference.child(REF_MEETUP);
 
@@ -155,6 +163,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void downloadImage() {
+        StorageReference islandRef = storageReference.child(REF_IMAGES);
+        File localFile = null;
 
+        try {
+            localFile = File.createTempFile("images", "jpg");
+            final File finalLocalFile = localFile;
+            islandRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    // Local temp file has been created
+                    Bitmap myBitmap = BitmapFactory.decodeFile(finalLocalFile.getAbsolutePath());
+                    myImageView.setImageBitmap(myBitmap);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
