@@ -31,9 +31,8 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     private static String TAG = MainActivity.class.getSimpleName();
-    private static String REFERECNCE = "gs://fcmexemplo.appspot.com";
-    private static String REF_MEETUP = "meetup.jpg";
     private static String REF_IMAGES = "images/meetup.jpg";
+    private static String REF_MEETUP = "meetup.jpg";
     private static int REQUEST_TAKE_PICTURE = 1001;
     private FirebaseStorage storage;
     private StorageReference storageReference;
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
 
         //2º Create a storage reference from our app
+        String REFERECNCE = "gs://fcmexemplo.appspot.com";
         storageReference = storage.getReferenceFromUrl(REFERECNCE);
 
         myImageView = (ImageView) findViewById(R.id.myImageView);
@@ -126,15 +126,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void uploadImage() {
 
-        //3º Create a reference to "meetup.jpg"
         StorageReference meetupRef = storageReference.child(REF_MEETUP);
 
         //4º Create a reference to images/meetup
         imagesRef = meetupRef.child(REF_IMAGES);
-
-        // While the file names are the same, the references point to different files
-        meetupRef.getName().equals(imagesRef.getName());    // true
-        meetupRef.getPath().equals(imagesRef.getPath());    // false
 
         // Get the data from an ImageView as bytes
         myImageView.setDrawingCacheEnabled(true);
@@ -163,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void downloadImage() {
-        StorageReference islandRef = storageReference.child(REF_IMAGES);
+        StorageReference islandRef = storageReference.child(REF_MEETUP);
         File localFile = null;
 
         try {
@@ -180,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     // Handle any errors
+                    Log.e("Storage", exception.getMessage());
                 }
             });
         } catch (IOException e) {

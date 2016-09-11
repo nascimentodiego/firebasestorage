@@ -28,3 +28,6 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:9.0.2'
 
 }
+
+// ADD THIS AT THE BOTTOM
+apply plugin: 'com.google.gms.google-services'
